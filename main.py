@@ -2,6 +2,8 @@ import streamlit as st
 import plotly.express as px
 from functions import get_data
 
+
+
 # web app features ( title, text input, slider, select box)
 st.title("Weather Dashboard")
 place = st.text_input("Place:")
@@ -20,23 +22,26 @@ elif days == 1 and option == "Temperature":
 else:
     st.subheader(f"Below is the {option} for the next {days} days in {place}")
 
+
 if place:
-    # get weather data
-    filtered_data = get_data(place, days)
+    try:
+        # get weather data
+        filtered_data = get_data(place, days)
 
-    # dynamic data plot
-    if option == "Temperature":
-        temperatures = [dict["main"]["temp"] for dict in filtered_data]  # filter temp data via temp dict key
-        dates = [dict["dt_txt"] for dict in filtered_data]
-        figure = px.line(x=dates, y=temperatures, labels={"x": "Date", "y":"Temperature (Celsius)"})
-        st.plotly_chart(figure)
+        # dynamic data plot
+        if option == "Temperature":
+            temperatures = [(dict["main"]["temp"])/10 for dict in filtered_data]  # filter temp data via temp dict key
+            dates = [dict["dt_txt"] for dict in filtered_data]
+            figure = px.line(x=dates, y=temperatures, labels={"x": "Date", "y":"Temperature (Celsius)"})
+            st.plotly_chart(figure)
 
-    if option == "Sky":
-        images = {"Clear":"images/clear.png",
-                  "Clouds":"images/cloud.png",
-                  "Rain":"images/rain.png",
-                  "Snow":"images/snow.png",}
-        sky_conditions = [dict["weather"][0]["main"] for dict in filtered_data]  # filter sky data via weather dict key
-        image_path = [images[condition] for condition in sky_conditions]    # access image value from key
-        st.image(image_path, width=110)
-
+        if option == "Sky":
+            images = {"Clear":"images/clear.png",
+                      "Clouds":"images/cloud.png",
+                      "Rain":"images/rain.png",
+                      "Snow":"images/snow.png",}
+            sky_conditions = [dict["weather"][0]["main"] for dict in filtered_data]  # filter sky data via weather dict key
+            image_path = [images[condition] for condition in sky_conditions]    # access image value from key
+            st.image(image_path, width=110)
+    except KeyError:
+        st.error("Please enter a valid location name!")
